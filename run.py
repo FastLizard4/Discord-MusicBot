@@ -199,7 +199,7 @@ def main():
                     break
 
                 elif e.__class__.__name__ == "RestartSignal":
-                    loops = -1
+                    sys.exit(0) # Exit since we use systemd set to Restart=always
             else:
                 traceback.print_exc()
 
