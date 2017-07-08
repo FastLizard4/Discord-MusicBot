@@ -229,31 +229,16 @@ class MusicBot(discord.Client):
             if server.id in self.the_voice_clients:
                 return self.the_voice_clients[server.id]
 
-            s_id = self.ws.wait_for('VOICE_STATE_UPDATE', lambda d: d.get('user_id') == self.user.id)
-            _voice_data = self.ws.wait_for('VOICE_SERVER_UPDATE', lambda d: True)
-
             await self.ws.voice_state(server.id, channel.id)
 
-            s_id_data = await asyncio.wait_for(s_id, timeout=10, loop=self.loop)
-            voice_data = await asyncio.wait_for(_voice_data, timeout=10, loop=self.loop)
-            session_id = s_id_data.get('session_id')
-
-            kwargs = {
-                'user': self.user,
-                'channel': channel,
-                'data': voice_data,
-                'loop': self.loop,
-                'session_id': session_id,
-                'main_ws': self.ws
-            }
-            voice_client = VoiceClient(**kwargs)
-            self.the_voice_clients[server.id] = voice_client
+            voice_client = None
 
             retries = 3
             for x in range(retries):
                 try:
                     print("Attempting connection...")
-                    await asyncio.wait_for(voice_client.connect(), timeout=10, loop=self.loop)
+                    voice_client = await asyncio.wait_for(self.join_voice_channel(channel=channel), timeout=10, loop=self.loop)
+                    self.the_voice_clients[server.id] = voice_client
                     print("Connection established.")
                     break
                 except:
