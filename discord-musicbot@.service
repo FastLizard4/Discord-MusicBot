@@ -1,0 +1,33 @@
+; Example systemd service unit file for running the Discord Music Bot.
+; This is a parameterized service.  This means that it allows you to run multiple instances of the music bot from just
+; a single service unit.  The parameterization is based upon the directory of the bot - in this setup, you would create
+; a folder called MusicBot somewhere on your system, and replace "/path/to/your/MusicBot" everywhere in this file
+; with the absolute path to that folder.  Within your MusicBot folder, create a folder called "source" and clone the
+; bot to this location.  Then, create other folders within the MusicBot folder to represent the different bot instances
+; you wish to run; for example, you might create a folder called "MyGamingServer".  Within this folder, create symbolic
+; links using the `ln -s` command to all the files and folders in the "source" folder, with the exception of the config
+; folder.  Instead, make a copy of the config folder in the source folder and place the copy in your instance folder.
+; Configure your bot, then run it by calling `systemctl start discord-musicbot@instance` where instance is the name of
+; the folder the instance of your bot is in; in this example, you would run the command
+; `systemctl start discord-musicbot@MyGamingServer`.  `systemctl stop discord-musicbot@instance` stops the instance.
+
+[Unit]
+Description=Discord MusicBot
+After=syslog.target network.target
+
+[Service]
+Environment=LC_ALL=en_US.UTF-8
+ExecStart=/usr/bin/python3 /path/to/your/MusicBot/%i/run.py
+; Currently, systemd does not support modifying environment variables in service unit files.  If your ffmpeg is in a
+; different location than the normal places, you will need to prepend the location the musicbot should look for your
+; ffmpeg to the PATH environment variable.  Comment out the above ExecStart line and uncomment the one below, replacing
+; "/path/containing/ffmpeg" with the path to your ffmpeg binary.
+;ExecStart=/bin/bash -c 'PATH="/path/containing/ffmpeg:$${PATH}" /usr/bin/python3 /path/to/your/MusicBot/%i/run.py'
+WorkingDirectory=/path/to/your/MusicBot/%i
+Type=simple
+KillSignal=2
+SendSIGKILL=yes
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
