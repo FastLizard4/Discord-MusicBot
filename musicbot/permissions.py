@@ -39,10 +39,13 @@ class Permissions:
                 raise RuntimeError("Unable to copy config/example_permissions.ini to %s: %s" % (config_file, e))
 
         self.default_group = PermissionGroup('Default', self.config['Default'])
-        self.groups = set()
+        self.groups = list()
 
         for section in self.config.sections():
-            self.groups.add(PermissionGroup(section, self.config[section]))
+            if section != 'Default':
+                self.groups.append(PermissionGroup(section, self.config[section]))
+
+        self.groups.append(self.default_group)
 
         # Create a fake section to fallback onto the permissive default values to grant to the owner
         # noinspection PyTypeChecker
@@ -50,7 +53,7 @@ class Permissions:
         if hasattr(grant_all, '__iter__'):
             owner_group.user_list = set(grant_all)
 
-        self.groups.add(owner_group)
+        self.groups.insert(0, owner_group)
 
 
     def save(self):
@@ -81,7 +84,7 @@ class Permissions:
 
     def create_group(self, name, **kwargs):
         self.config.read_dict({name:kwargs})
-        self.groups.add(PermissionGroup(name, self.config[name]))
+        self.groups.append(PermissionGroup(name, self.config[name]))
         # TODO: Test this
 
 
