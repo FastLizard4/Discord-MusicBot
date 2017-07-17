@@ -720,7 +720,7 @@ class MusicBot(discord.Client):
             if cmd:
                 return Response(
                     "```\n{}```".format(
-                        dedent(cmd.__doc__),
+                        dedent(cmd.__doc__.format(command_prefix=self.config.command_prefix)),
                         command_prefix=self.config.command_prefix
                     ),
                     delete_after=60
