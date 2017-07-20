@@ -12,7 +12,6 @@ import traceback
 from discord import utils
 from discord.object import Object
 from discord.enums import ChannelType
-from discord.voice_client import VoiceClient
 from discord.ext.commands.bot import _get_variable
 
 from io import BytesIO
@@ -236,6 +235,8 @@ class MusicBot(discord.Client):
             retries = 3
             for x in range(retries):
                 try:
+                    print('Closing all voice client connections...')
+                    await self.disconnect_all_voice_clients()
                     print("Attempting connection...")
                     voice_client = await asyncio.wait_for(self.join_voice_channel(channel=channel), timeout=10, loop=self.loop)
                     self.the_voice_clients[server.id] = voice_client
@@ -703,6 +704,32 @@ class MusicBot(discord.Client):
                 print("Owner not found in a voice channel, could not autosummon.")
 
         print()
+
+        print('Verifying that we have connected to the voice server')
+        # Test if we are connected to the voice server.  If we are not, wait a second then check again.  If after 15
+        # seconds we still aren't connected, quit the bot so systemd restarts it.  Hacky solution, but I can't be
+        # bothered to figure out what's really happening.  Also detects if we're somehow connected to more than one
+        # server and kills the bot in that situation as well.
+
+        if len(self.servers) > 1:
+            print('Uhh, somehow we\'re in more than one server?  Abort!')
+            sys.exit(1)
+
+        spins = 0
+        my_server = list(self.servers)[0] # This could be the entirely wrong way to go about this.  But I can't even
+                                          # find where self.servers is defined or its values populated; this is just
+                                          # what I found would work after playing around with the debugger.  :|
+        while True:
+            if self.is_voice_connected(my_server):
+                print('Voice connection verified')
+                break
+            else:
+                spins += 1
+
+            if spins > 15:
+                print('No connection to server after 15 seconds, giving up.')
+                sys.exit(1)
+
         # t-t-th-th-that's all folks!
 
     async def cmd_help(self, command=None):
