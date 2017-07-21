@@ -716,6 +716,7 @@ class MusicBot(discord.Client):
             sys.exit(1)
 
         spins = 0
+        maxspins = 15
         my_server = list(self.servers)[0] # This could be the entirely wrong way to go about this.  But I can't even
                                           # find where self.servers is defined or its values populated; this is just
                                           # what I found would work after playing around with the debugger.  :|
@@ -725,8 +726,10 @@ class MusicBot(discord.Client):
                 break
             else:
                 spins += 1
+                print('Spin {:n} of {:n}'.format(spins, maxspins))
+                time.sleep(1)
 
-            if spins > 15:
+            if spins > maxspins:
                 print('No connection to server after 15 seconds, giving up.')
                 sys.exit(1)
 
