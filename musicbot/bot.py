@@ -8,6 +8,7 @@ import aiohttp
 import discord
 import asyncio
 import traceback
+import signal
 
 from discord import utils
 from discord.object import Object
@@ -242,6 +243,8 @@ class MusicBot(discord.Client):
                     self.the_voice_clients[server.id] = voice_client
                     print("Connection established.")
                     break
+                except (KeyboardInterrupt, SystemExit):
+                    raise
                 except:
                     traceback.print_exc()
                     print("Failed to connect, retrying (%s/%s)..." % (x+1, retries))
@@ -713,7 +716,7 @@ class MusicBot(discord.Client):
 
         if len(self.servers) > 1:
             print('Uhh, somehow we\'re in more than one server?  Abort!')
-            sys.exit(1)
+            MusicBot.sure_kill()
 
         spins = 0
         maxspins = 15
@@ -731,7 +734,7 @@ class MusicBot(discord.Client):
 
             if spins > maxspins:
                 print('No connection to server after 15 seconds, giving up.')
-                sys.exit(1)
+                MusicBot.sure_kill()
 
         # t-t-th-th-that's all folks!
 
@@ -2025,6 +2028,15 @@ class MusicBot(discord.Client):
             self.safe_print("[Servers] \"%s\" changed regions: %s -> %s" % (after.name, before.region, after.region))
 
             await self.reconnect_voice_client(after)
+
+    @staticmethod
+    def sure_kill():
+        if os.name == 'posix':
+            os.kill(os.getpid(), signal.SIGTERM)
+        elif os.name == 'nt':
+            os.kill(os.getpid(), signal.CTRL_C_EVENT)
+        else:
+            os._exit(-1)
 
 
 if __name__ == '__main__':
