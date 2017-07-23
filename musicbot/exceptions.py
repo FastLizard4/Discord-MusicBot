@@ -1,5 +1,6 @@
 import shutil
 import textwrap
+import re
 
 # Base class for exceptions
 class MusicbotException(Exception):
@@ -21,7 +22,10 @@ class CommandError(MusicbotException):
 
 # Something went wrong during the processing of a song/ytdl stuff
 class ExtractionError(MusicbotException):
-    pass
+    def __init__(self, message):
+        pattern = re.compile('(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+        message_clean = pattern.sub('', message)
+        super(ExtractionError, self).__init__(message=message_clean)
 
 # The no processing entry type failed and an entry was a playlist/vice versa
 class WrongEntryTypeError(ExtractionError):
