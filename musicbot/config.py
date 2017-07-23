@@ -79,6 +79,7 @@ class Config:
         self.delete_invoking = config.getboolean('MusicBot', 'DeleteInvoking', fallback=ConfigDefaults.delete_invoking)
         self.debug_mode = config.getboolean('MusicBot', 'DebugMode', fallback=ConfigDefaults.debug_mode)
         self.ffmpeg_options = config.get('MusicBot', 'FfmpegOptions', fallback=ConfigDefaults.ffmpeg_options)
+        self.search_timeout = config.getint('MusicBot', 'SearchTimeout', fallback=ConfigDefaults.search_timeout)
 
         self.blacklist_file = config.get('Files', 'BlacklistFile', fallback=ConfigDefaults.blacklist_file)
         self.auto_playlist_file = config.get('Files', 'AutoPlaylistFile', fallback=ConfigDefaults.auto_playlist_file)
@@ -189,6 +190,7 @@ class ConfigDefaults:
     delete_invoking = False
     debug_mode = False
     ffmpeg_options = ''
+    search_timeout = 30
 
     options_file = 'config/options.ini'
     blacklist_file = 'config/blacklist.txt'

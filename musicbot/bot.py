@@ -1242,8 +1242,8 @@ class MusicBot(discord.Client):
             result_message = await self.safe_send_message(channel, "Result %s/%s: %s" % (
                 info['entries'].index(e) + 1, len(info['entries']), e['webpage_url']))
 
-            confirm_message = await self.safe_send_message(channel, "Is this ok? Type `y`, `n` or `exit`")
-            response_message = await self.wait_for_message(30, author=author, channel=channel, check=check)
+            confirm_message = await self.safe_send_message(channel, "Is this ok? Type `y`, `n` or `exit`. I'll wait {:n} seconds for you to get back to me.".format(self.config.search_timeout))
+            response_message = await self.wait_for_message(self.config.search_timeout, author=author, channel=channel, check=check)
 
             if not response_message:
                 await self.safe_delete_message(result_message)
