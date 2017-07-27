@@ -22,10 +22,13 @@ class CommandError(MusicbotException):
 
 # Something went wrong during the processing of a song/ytdl stuff
 class ExtractionError(MusicbotException):
-    def __init__(self, message):
-        pattern = re.compile('(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
-        message_clean = pattern.sub('', message)
-        super(ExtractionError, self).__init__(message=message_clean)
+    def __init__(self, param):
+        if isinstance(param, (str, bytes)):
+            pattern = re.compile('(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+            message_clean = pattern.sub('', param)
+            super(ExtractionError, self).__init__(message=message_clean)
+        else:
+            super(ExtractionError, self).__init__(param)
 
 # The no processing entry type failed and an entry was a playlist/vice versa
 class WrongEntryTypeError(ExtractionError):
