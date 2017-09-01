@@ -28,6 +28,9 @@ Type=simple
 KillSignal=2
 SendSIGKILL=yes
 Restart=always
+RestartSec=10
+StartLimitInterval=120
+StartLimitBurst=4
 
 [Install]
 WantedBy=multi-user.target
